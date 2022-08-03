@@ -22,3 +22,33 @@ They are YAML files, with an easy to understand syntax. An example is shown belo
     - url
 ```
 Variables are put in the command with underscores, then those variables are listed in the `variables` list. Do not mess that up or *shrug* your term may explode? Idk.
+
+## Rendering Markdown Files
+
+You can now render markdown files in retrieved from `halp`. To do this, create a cheatsheet file like before, but use the `file` keyword to point to the path:
+
+```yaml
+- description: "[golang] get all files in a directory"
+  file: "golang/go_get_all_files_in_dir.md"
+```
+
+Then in your markdown file you can do the usual markdown stuff,
+
+```markdown
+# Get all the files with ext in a directory
+
+```golang
+err := filepath.Walk(path,
+    func(p string, info os.FileInfo, err error) error {
+        if err != nil {
+                return err
+        }
+        if filepath.Ext(p) != ".json" {
+            return nil
+        }
+        fmt.Println(p, info.Size())
+        loadJson(p)
+        return nil
+    })  
+```
+```
