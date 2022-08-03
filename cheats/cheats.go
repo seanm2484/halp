@@ -2,9 +2,10 @@ package cheats
 
 import (
 	"errors"
-	"io/ioutil"
+	"io/fs"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/charmbracelet/bubbles/list"
 	"gopkg.in/yaml.v3"
@@ -17,36 +18,58 @@ type CheatSearch struct {
 	TitleField string   `yaml:"description"`
 	Desc       string   `yaml:"command"`
 	Vars       []string `yaml:"variables"`
+	Filename   string   `yaml:"file"`
 }
 
 func (i CheatSearch) Title() string       { return i.TitleField }
 func (i CheatSearch) Description() string { return i.Desc }
 func (i CheatSearch) FilterValue() string { return i.TitleField }
 func (i CheatSearch) Variables() []string { return i.Vars }
+func (i CheatSearch) File() string        { return i.Filename }
 
 func GetList(filePath string) []list.Item {
-	files, err := ioutil.ReadDir(filePath)
-	if err != nil {
-		panic(err)
-	}
+	files := func(root string, ext string) []string {
+		var a []string
+		filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
+			if e != nil {
+				return e
+			}
+			if filepath.Ext(d.Name()) == ext {
+				a = append(a, s)
+			}
+			return nil
+		})
+		return a
+	}(filePath, ".yaml")
+
 	cheats := make([]list.Item, 0)
 	for _, f := range files {
 		// get all the cheats that we could ever find
-		cheats = append(cheats, loadYAMLItems(filePath+"/"+f.Name())...)
+		cheats = append(cheats, loadYAMLItems(f)...)
 	}
 
 	return cheats
 }
 
 func (mw CheatSearch) GetDescriptions(filePath string) []CheatSearch {
-	files, err := ioutil.ReadDir(filePath)
-	if err != nil {
-		panic(err)
-	}
+	files := func(root string, ext string) []string {
+		var a []string
+		filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
+			if e != nil {
+				return e
+			}
+			if filepath.Ext(d.Name()) == ext {
+				a = append(a, s)
+			}
+			return nil
+		})
+		return a
+	}(filePath, ".yaml")
+
 	cheats := make([]CheatSearch, 0)
 	for _, f := range files {
 		// get all the cheats that we could ever find
-		cheats = append(cheats, mw.loadYAML(filePath+"/"+f.Name())...)
+		cheats = append(cheats, mw.loadYAML(f)...)
 	}
 
 	return cheats
@@ -59,7 +82,7 @@ func loadYAMLItems(filePath string) []list.Item {
 	}
 	var cheats []CheatSearch
 	if err := yaml.Unmarshal(f, &cheats); err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	items := make([]list.Item, 0)
@@ -76,7 +99,8 @@ func (mw CheatSearch) loadYAML(filePath string) []CheatSearch {
 	}
 	var cheats []CheatSearch
 	if err := yaml.Unmarshal(f, &cheats); err != nil {
-		log.Fatal(err)
+		//log.Fatal(err)
+		panic(err)
 	}
 
 	return cheats
@@ -85,7 +109,11 @@ func (mw CheatSearch) loadYAML(filePath string) []CheatSearch {
 func (mw CheatSearch) FindSelectedCheat(cheatDesc string) (cheat CheatSearch, err error) {
 	// we have a description, so iterate over the list to find the entry
 	// that matches.
-	cheatList := mw.GetDescriptions("./cheatFiles")
+	dirname, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	cheatList := mw.GetDescriptions(dirname + "/.halp/cheatFiles")
 	for _, c := range cheatList {
 		if c.TitleField == cheatDesc {
 			return c, nil

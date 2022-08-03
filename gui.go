@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 
+	markdown "github.com/MichaelMure/go-term-markdown"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -107,8 +110,12 @@ func (m model) View() string {
 }
 
 func main() {
+	dirname, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
 	// populate the list that we can fuzzysearch on
-	items := cheats.GetList("./cheatFiles")
+	items := cheats.GetList(dirname + "/.halp/cheatFiles")
 
 	t := textinput.NewModel()
 	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
@@ -120,6 +127,17 @@ func main() {
 	if err := p.Start(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
+	}
+
+	// if there is a file specified, just render this instead
+	if len(globals.TheCheat.Filename) > 0 {
+		source, err := ioutil.ReadFile(dirname + "/.halp/cheatFiles/" + globals.TheCheat.Filename)
+		if err != nil {
+			panic(err)
+		}
+		result := string(markdown.Render(string(source), 80, 6))
+		fmt.Println(result)
+
 	}
 	// now get the vars
 	mV := varview.Model{}

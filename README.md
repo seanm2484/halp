@@ -6,7 +6,7 @@ https://asciinema.org/a/cngSkLVa4L4XoTdM1ut5x5H19
 
 ## Creating Cheatsheets
 
-Cheatsheets are read from the directory `./cheatFiles`
+Cheatsheets are read from the directory `~/.halp/cheatFiles`
 They are YAML files, with an easy to understand syntax. An example is shown below:
 
 ```yaml
