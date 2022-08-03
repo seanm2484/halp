@@ -1,0 +1,21 @@
+- description: send a get http request
+  command: "curl _url_" 
+  variables:
+    - url
+- description: send a put http request
+  command: curl -x PUT _url_
+  variables:
+    - url
+- description: send a http request and write the output to a file
+  command: curl -X _method_ _url_ -o _filename_
+  variables:
+    - method
+    - url
+    - filename
+- description: send a get http request and follow redirects
+  command: curl -L _url_
+  variables:
+    - url
+
+- description: curl this file
+  file: "curl.md"

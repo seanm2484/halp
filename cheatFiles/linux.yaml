@@ -1,0 +1,2 @@
+- description: passwordless sudo
+  file: "linux/passwordless_sudo.md"

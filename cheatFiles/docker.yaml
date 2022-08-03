@@ -1,0 +1,2 @@
+- description: view all running containers
+  command: "docker ps"
