@@ -1,0 +1,2 @@
+ - description: install jupyter notebook
+   command: pip install notebook && jupyter notebook

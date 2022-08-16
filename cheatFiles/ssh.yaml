@@ -1,0 +1,2 @@
+- description: "[ssh] config"
+  file: "ssh/ssh_config_file.md"
